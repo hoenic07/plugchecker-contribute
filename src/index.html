@@ -1,0 +1,149 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" lang="de-DE">
+
+<head>
+  <title>Plugchecker - Contribute</title>
+  <meta name="theme-color" content="#3498db" />
+
+  <meta name="author" content="Niklas Hösl">
+  <meta name="publisher" content="Niklas Hösl">
+  <meta name="copyright" content="Niklas Hösl">
+  <meta http-equiv="content-language" content="de">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+
+  <link rel="stylesheet" href="https://code.ionicframework.com/ionicons/1.5.2/css/ionicons.min.css">
+  <link href="https://fonts.googleapis.com/css?family=Quicksand" rel="stylesheet">
+  <link rel="stylesheet" href="https://www.w3schools.com/w3css/4/w3.css">
+  <link rel="stylesheet" href="https://www.w3schools.com/lib/w3-colors-flat.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+  <link rel="stylesheet" href="css/style.css">
+</head>
+
+<body class="w3-light-gray">
+  <div class="w3-bar w3-flat-peter-river" id="top-bar">
+    <div class="w3-bar-item"><a href="https://contribute.plugchecker.com"><img id="logo" src="img/logo.png"/></a></div>
+    <div class="w3-bar-item w3-button">Tarife bearbeiten / hinzufügen</div>
+    <div class="w3-bar-item w3-button">Änderungen überprüfen</div>
+  </div>
+
+  <div class="w3-light-gray w3-container w3-margin-top">
+    <div id="provider-container" class="w3-container w3-padding w3-white center-container">
+    
+      <h3>Anbieter auswählen</h3>
+    
+      <select id="select-provider" class="w3-select w3-margin-top w3-margin-bottom" name="option"></select>
+      <label class="w3-margin-top w3-margin-bottom">oder</label>
+      <br>
+      <input id="new-provider-name" class="w3-input w3-margin-top w3-margin-bottom" type="text" placeholder="Neuen Anbieter erstellen">
+      <button id="button-new-provider" class="w3-button w3-flat-peter-river">Erstellen</button>
+    </div>
+
+    <div id="tariffs-container" class="w3-container w3-padding w3-white center-container">
+
+      <div id="provider-general-container">
+      </div>
+
+      <div id="tariffs-list-container">
+      </div>
+
+
+      <textarea class="w3-input w3-border w3-margin-top" placeholder="Was wurde geändert?"></textarea>
+
+      <button class="w3-button w3-green w3-margin-top">Änderungvorschlag absenden</button>
+    </div>
+
+  </div>
+
+  <div id="snackbar"></div>
+
+  <script id="providerSelectionTempl" type="text/x-jsrender">
+    <option value="{{:id}}" {{if default}}disabled selected{{/if}}>{{:name}}</option>
+  </script>
+
+  <script id="providerTempl" type="text/x-jsrender">
+    <h3>Tarife von {{:name}}</h3>
+    <span id="tariff-add-{{:id}}" class="w3-tag action-btn w3-green">Tarif hinzufügen</span>
+  </script>
+
+  <script id="tariffTempl" type="text/x-jsrender">
+    <h4>{{:name}}</h4>
+    <div>
+      {{if flatRate}}<span class="w3-tag">Flatrate</span>{{/if}}
+      {{if providerCustomerOnly}}<span class="w3-tag">Exklusiver Kundentarif</span>{{/if}}
+    </div>
+    {{if validFrom || validTo}}
+    <label>Gültig von 
+      {{if validFrom}}{{date:validFrom}}{{else}}-{{/if}} bis 
+      {{if validTo}}{{date:validTo}}{{else}}-{{/if}}
+    </label><br>
+    {{/if}}
+    <label>Going Electric Card Id: {{:chargeCardId}}</label><br>
+    <label>URL: <a href="{{:url}}" target="_blank">{{:url}}</a></label><br>
+    <label>Mindestumsatz / Monat: {{dec:monthlyMinSales}}</label><br>
+    <label>Grundgebühr / Monat: {{dec:monthlyMinSales}}</label><br>
+    <label>Servicepauschale / Jahr: {{dec:yearlyServiceFee}}</label><br>
+  
+    <span id="tariff-edit-{{:id}}" class="w3-tag action-btn w3-flat-peter-river">Bearbeiten</span>
+
+    <h5>Segmente</h5>
+    <span id="segment-add-{{:id}}" class="w3-tag action-btn w3-green">Segment hinzufügen</span>
+    <table class="w3-table w3-striped">
+      {{for prices tmpl="#priceTempl" /}}
+    </table>
+    
+  </script>
+
+  <script id="priceTempl" type="text/x-jsrender">
+    <tr>
+      <td>
+      <div class="w3-row">
+        <div class="w3-half">
+          <ul>
+            {{for restrictions tmpl="#restrictionTempl" /}}
+          </ul>
+          <span id="restriction-add-{{:id}}" class="w3-tag action-btn w3-green">Einschränkung hinzufügen</span>
+        </div>
+        <div class="w3-half">
+          <ul>
+            {{for decomposition tmpl="#decompositionTempl" /}}
+          </ul>
+          <span id="pricesegment-add-{{:id}}" class="w3-tag action-btn w3-green">Preisanteil hinzufügen</span>
+        </div>
+      </div>
+      <span id="segment-delete-{{:id}}" class="w3-tag action-btn w3-red w3-margin-top">Segment löschen</span>
+    </td>
+    </tr>
+  </script>
+
+  <script id="restrictionTempl" type="text/x-jsrender">
+    <li>
+      <b id="restriction-edit-{{:id}}" class="action-link">{{rest:metric}}</b> 
+      {{if allowance=="deny"}}Unerlaubt{{else}}Erlaubt{{/if}}: {{csv:value}}
+    </li>
+  </script>
+
+  <script id="decompositionTempl" type="text/x-jsrender">
+    <li>
+      {{if degree == "linear"}}
+        <b id="pricesegment-edit-{{:id}}" class="action-link">{{dec:price}} pro {{dimension:dimension}}</b>
+        {{if rangeGte && rangeLte}}Von {{:rangeGte}} {{dimension:dimension}} bis {{:rangeLte}} {{dimension:dimension}}{{/if}}
+        {{if rangeGte && !rangeLte}}Ab {{:rangeGte}} {{dimension:dimension}}{{/if}}
+        {{if !rangeGte && rangeLte}}Bis {{:rangeLte}} {{dimension:dimension}}{{/if}}
+      {{else}}
+      <b id="pricesegment-edit-{{:id}}" class="action-link">{{dec:price}} pro Ladung</b>
+      {{/if}}
+    </li>
+  </script>
+
+  <script src="https://code.jquery.com/jquery-3.2.1.slim.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jsrender/1.0.1/jsrender.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.24.0/moment.min.js"></script>
+  <script src="js/app.js"></script>
+  <script>
+
+    $(document).ready(()=>new App());
+
+  </script>
+
+</body>

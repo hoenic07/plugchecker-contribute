@@ -1,0 +1,29 @@
+{
+  "name": "plugchecker-contribute",
+  "version": "1.0.0",
+  "description": "",
+  "workspaces": {
+    "packages": [
+      "packages/*"
+    ]
+  },
+  "private": true,
+  "scripts": {
+    "serve": "http-server dist/ -p 9000",
+
+    "dist": "yarn run dist:clean && yarn run dist:createDirectories && yarn run dist:transpile && yarn run dist:copyAssets",
+    "dist:clean": "rm -rf dist/",
+    "dist:transpile": "babel src -d dist",
+    "dist:copyAssets": "cp src/css/* dist/css && cp src/*.* dist/ && cp src/img/* dist/img",
+    "dist:createDirectories": "mkdir dist && mkdir dist/css && mkdir dist/img",
+
+    "start": "yarn run dist && yarn run serve"
+  },
+  "dependencies": {},
+  "devDependencies": {
+    "babel-cli": "^6.26.0",
+    "@babel/core": "^7.1.6",
+    "@babel/preset-env": "^7.3.1",
+    "http-server": "^0.11.1"
+  }
+}
